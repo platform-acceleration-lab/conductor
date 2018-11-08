@@ -16,6 +16,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.netflix.conductor.dao.IndexDAO;
 import com.netflix.conductor.dao.mysql.MySQLIndexer;
+import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServer;
@@ -59,6 +60,18 @@ public class Main {
             System.exit(3);
         }
 
+        RedisExecutionIndexer indexer = null;
+        try {
+            indexer = serverInjector.getInstance(RedisExecutionIndexer.class);
+        } catch (com.google.inject.ConfigurationException e) {
+            logger.info("Unable to get RedisExecutionIndexer for possible reindex");
+        }
+
+        // re-index Redis from other data store if configured
+        if (embeddedSearchInstance.isPresent() && indexer != null) {
+            logger.info("Reindexing Redis into Embedded ES");
+            indexer.indexRedis();
+        }
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             if (embeddedSearchInstance.isPresent()) {
