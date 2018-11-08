@@ -51,6 +51,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("Duplicates")
 @Singleton
 @Trace
 public class RedisExecutionDAO extends BaseDynoDAO implements ExecutionDAO {
