@@ -19,6 +19,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.netflix.conductor.dao.IndexDAO;
 import com.netflix.conductor.dao.mysql.MySQLIndexer;
+import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServerProvider;
@@ -31,11 +32,15 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Viren Entry point for the server
  */
 public class Main {
+
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final int EMBEDDED_ES_INIT_TIME = 5000;
 
@@ -75,6 +80,18 @@ public class Main {
             System.exit(3);
         }
 
+        RedisExecutionIndexer indexer = null;
+        try {
+            indexer = serverInjector.getInstance(RedisExecutionIndexer.class);
+        } catch (com.google.inject.ConfigurationException e) {
+            logger.info("Unable to get RedisExecutionIndexer for possible reindex");
+        }
+
+        // re-index Redis from other data store if configured
+        if (embeddedSearchInstance.isPresent() && indexer != null) {
+            logger.info("Reindexing Redis into Embedded ES");
+            indexer.indexRedis();
+        }
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             if (embeddedSearchInstance.isPresent()) {
