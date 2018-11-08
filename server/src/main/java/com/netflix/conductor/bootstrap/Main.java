@@ -19,6 +19,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.netflix.conductor.dao.IndexDAO;
+import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServerProvider;
@@ -31,11 +32,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Viren Entry point for the server
  */
 public class Main {
+
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final int EMBEDDED_ES_INIT_TIME = 5000;
 
@@ -74,6 +79,11 @@ public class Main {
             System.exit(3);
         }
 
+        // re-index from other data store
+        if (embeddedSearchInstance.isPresent()) {
+            logger.info("Reindexing Redis into Embedded ES");
+            serverInjector.getInstance(RedisExecutionIndexer.class).indexRedis();
+        }
 
         System.out.println("\n\n\n");
         System.out.println("                     _            _             ");
