@@ -79,10 +79,17 @@ public class Main {
             System.exit(3);
         }
 
-        // re-index from other data store
-        if (embeddedSearchInstance.isPresent()) {
+        RedisExecutionIndexer indexer = null;
+        try {
+            indexer = serverInjector.getInstance(RedisExecutionIndexer.class);
+        } catch (com.google.inject.ConfigurationException e) {
+            logger.info("Unable to get RedisExecutionIndexer for possible reindex");
+        }
+
+        // re-index Redis from other data store if configured
+        if (embeddedSearchInstance.isPresent() && indexer != null) {
             logger.info("Reindexing Redis into Embedded ES");
-            serverInjector.getInstance(RedisExecutionIndexer.class).indexRedis();
+            indexer.indexRedis();
         }
 
         System.out.println("\n\n\n");
