@@ -3,6 +3,7 @@ package com.netflix.conductor.jedis;
 import com.netflix.conductor.dyno.DynomiteConfiguration;
 import com.netflix.dyno.connectionpool.Host;
 import com.netflix.dyno.connectionpool.HostSupplier;
+import com.netflix.dyno.connectionpool.impl.utils.ConfigUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,13 @@ public class ConfigurationHostSupplierProvider implements Provider<HostSupplier>
             String host = hostConfigValues[0];
             int port = Integer.parseInt(hostConfigValues[1]);
             String rack = hostConfigValues[2];
+
+            if (hostConfigValues.length >= 4) {
+                String password = hostConfigValues[3];
+                return new Host(host, null, port, port, rack,
+                    ConfigUtils.getDataCenterFromRack(rack), Host.Status.Up, null, password);
+            }
+
             return new Host(host, port, rack, Host.Status.Up);
         }).collect(Collectors.toList());
 
