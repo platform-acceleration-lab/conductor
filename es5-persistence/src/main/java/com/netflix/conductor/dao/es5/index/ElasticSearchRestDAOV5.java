@@ -113,7 +113,7 @@ public class ElasticSearchRestDAOV5 implements IndexDAO {
     private static final String MSG_DOC_TYPE = "message";
 
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMWW");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
 
     private @interface HttpMethod {
         String GET = "GET";

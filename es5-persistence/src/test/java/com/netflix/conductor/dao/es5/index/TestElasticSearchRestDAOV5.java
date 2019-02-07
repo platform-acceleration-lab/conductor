@@ -79,6 +79,8 @@ public class TestElasticSearchRestDAOV5 {
 
     private static final Logger logger = LoggerFactory.getLogger(TestElasticSearchRestDAOV5.class);
 
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
+
     private static final String INDEX_NAME = "conductor";
     private static final String LOG_INDEX_PREFIX = "task_log";
 
@@ -211,7 +213,7 @@ public class TestElasticSearchRestDAOV5 {
     @Test
     public void assertInitialSetup() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMWW");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         String taskLogIndex = "task_log_" + dateFormat.format(new Date());
