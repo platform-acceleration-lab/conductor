@@ -71,6 +71,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestElasticSearchDAOV5 {
+
+	private static final Logger logger = LoggerFactory.getLogger(TestElasticSearchDAOV5.class);
+
+	private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
+
 	private static final String MSG_DOC_TYPE = "message";
 	private static final String EVENT_DOC_TYPE = "event";
 	private static final String LOG_INDEX_PREFIX = "task_log";
@@ -210,6 +215,7 @@ public class TestElasticSearchDAOV5 {
 
 	@Test
 	public void assertInitialSetup() throws Exception {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMWW");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 

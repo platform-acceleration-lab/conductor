@@ -112,7 +112,7 @@ public class ElasticSearchDAOV5 implements IndexDAO {
 
     private static final String className = ElasticSearchDAOV5.class.getSimpleName();
 
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMWW");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
     private static final int RETRY_COUNT = 3;
 
