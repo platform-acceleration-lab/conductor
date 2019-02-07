@@ -63,7 +63,7 @@ public class TestElasticSearchDAOV5 {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestElasticSearchDAOV5.class);
 
-	private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMww");
+	private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
 
 	private static final String MSG_DOC_TYPE = "message";
 	private static final String EVENT_DOC_TYPE = "event";
@@ -203,7 +203,7 @@ public class TestElasticSearchDAOV5 {
 
 	@Test
 	public void assertInitialSetup() throws Exception {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMww");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		String taskLogIndex = "task_log_" + dateFormat.format(new Date());
