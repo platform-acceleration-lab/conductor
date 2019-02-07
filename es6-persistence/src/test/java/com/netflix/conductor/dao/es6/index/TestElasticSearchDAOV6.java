@@ -51,6 +51,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestElasticSearchDAOV6 {
 
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMWW");
 
     private static final String INDEX_PREFIX = "conductor";
