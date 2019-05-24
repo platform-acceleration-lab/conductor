@@ -15,6 +15,7 @@ package com.netflix.conductor.bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.netflix.conductor.dao.IndexDAO;
+import com.netflix.conductor.dao.mysql.MySQLIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServer;
@@ -25,6 +26,8 @@ import org.apache.log4j.PropertyConfigurator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Viren Entry point for the server
@@ -56,6 +59,13 @@ public class Main {
             System.exit(3);
         }
 
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            if (embeddedSearchInstance.isPresent()) {
+                System.out.println("Reindexing into Elasticsearch");
+                serverInjector.getInstance(MySQLIndexer.class).reindex();
+            }
+        });
 
         System.out.println("\n\n\n");
         System.out.println("                     _            _             ");
