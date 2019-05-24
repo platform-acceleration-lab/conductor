@@ -17,20 +17,20 @@ package com.netflix.conductor.bootstrap;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import com.netflix.conductor.dao.IndexDAO;
+import com.netflix.conductor.dao.mysql.MySQLIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServerProvider;
 import com.netflix.conductor.jetty.server.JettyServerProvider;
-
-import org.apache.log4j.PropertyConfigurator;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @author Viren Entry point for the server
@@ -52,7 +52,8 @@ public class Main {
         ModulesProvider modulesProvider = bootstrapInjector.getInstance(ModulesProvider.class);
         Injector serverInjector = Guice.createInjector(modulesProvider.get());
 
-        Optional<EmbeddedElasticSearch> embeddedSearchInstance = serverInjector.getInstance(EmbeddedElasticSearchProvider.class).get();
+        Optional<EmbeddedElasticSearch> embeddedSearchInstance = serverInjector
+            .getInstance(EmbeddedElasticSearchProvider.class).get();
         if (embeddedSearchInstance.isPresent()) {
             try {
                 embeddedSearchInstance.get().start();
@@ -69,11 +70,18 @@ public class Main {
 
         try {
             serverInjector.getInstance(IndexDAO.class).setup();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace(System.err);
             System.exit(3);
         }
 
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            if (embeddedSearchInstance.isPresent()) {
+                System.out.println("Reindexing into Elasticsearch");
+                serverInjector.getInstance(MySQLIndexer.class).reindex();
+            }
+        });
 
         System.out.println("\n\n\n");
         System.out.println("                     _            _             ");

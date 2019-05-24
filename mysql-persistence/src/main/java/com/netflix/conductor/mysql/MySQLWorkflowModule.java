@@ -7,6 +7,7 @@ import com.netflix.conductor.dao.ExecutionDAO;
 import com.netflix.conductor.dao.MetadataDAO;
 import com.netflix.conductor.dao.QueueDAO;
 import com.netflix.conductor.dao.mysql.MySQLExecutionDAO;
+import com.netflix.conductor.dao.mysql.MySQLIndexer;
 import com.netflix.conductor.dao.mysql.MySQLMetadataDAO;
 import com.netflix.conductor.dao.mysql.MySQLQueueDAO;
 
@@ -24,6 +25,8 @@ public class MySQLWorkflowModule extends AbstractModule {
         bind(MetadataDAO.class).to(MySQLMetadataDAO.class);
         bind(ExecutionDAO.class).to(MySQLExecutionDAO.class);
         bind(QueueDAO.class).to(MySQLQueueDAO.class);
+
+        bind(MySQLIndexer.class).asEagerSingleton();
     }
 
 }
