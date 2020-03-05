@@ -48,13 +48,13 @@ public class MySQLIndexer extends MySQLBaseDAO {
     private List<Task> getTasks() {
         final String GET_TASKS = "SELECT json_data FROM task WHERE json_data IS NOT NULL";
 
-        return getWithTransaction(c -> query(c, GET_TASKS, q -> q.executeAndFetch(Task.class)));
+        return getWithRetriedTransactions(c -> query(c, GET_TASKS, q -> q.executeAndFetch(Task.class)));
     }
 
     private List<Workflow> getWorkflows() {
         String GET_WORKFLOWS = "SELECT json_data FROM workflow";
 
-        return getWithTransaction(c -> query(c, GET_WORKFLOWS, q -> q.executeAndFetch(Workflow.class)));
+        return getWithRetriedTransactions(c -> query(c, GET_WORKFLOWS, q -> q.executeAndFetch(Workflow.class)));
     }
 
 }
