@@ -7,7 +7,6 @@ import com.netflix.dyno.connectionpool.impl.ConnectionPoolConfigurationImpl;
 import com.netflix.dyno.jedis.DynoJedisClient;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import redis.clients.jedis.JedisCommands;
 
 public class DynoJedisClientProvider implements Provider<DynoJedisClient> {
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -10,9 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-/**
- *
- */
 package com.netflix.conductor.bootstrap;
 
 import com.google.inject.Guice;
@@ -22,8 +19,11 @@ import com.netflix.conductor.dao.mysql.MySQLIndexer;
 import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
+import com.netflix.conductor.grpc.server.GRPCServer;
 import com.netflix.conductor.grpc.server.GRPCServerProvider;
 import com.netflix.conductor.jetty.server.JettyServerProvider;
+import org.apache.log4j.PropertyConfigurator;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,7 +31,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        loadConfigFile(args.length > 0 ? args[0] : System.getenv("CONDUCTOR_CONFIG_FILE"));
+        BootstrapUtil.loadConfigFile(args.length > 0 ? args[0] : System.getenv("CONDUCTOR_CONFIG_FILE"));
 
         if (args.length == 2) {
             System.out.println("Using log4j config " + args[1]);
@@ -72,6 +71,10 @@ public class Main {
                 System.exit(3);
             }
         }
+        Optional<EmbeddedElasticSearch> embeddedElasticSearch = serverInjector.getInstance(EmbeddedElasticSearchProvider.class).get();
+        embeddedElasticSearch.ifPresent(BootstrapUtil::startEmbeddedElasticsearchServer);
+
+        BootstrapUtil.setupIndex(serverInjector.getInstance(IndexDAO.class));
 
         try {
             serverInjector.getInstance(IndexDAO.class).setup();
@@ -92,14 +95,9 @@ public class Main {
         System.out.println(" \\___\\___/|_| |_|\\__,_|\\__,_|\\___|\\__\\___/|_|   ");
         System.out.println("\n\n\n");
 
-        serverInjector.getInstance(GRPCServerProvider.class).get().ifPresent(server -> {
-            try {
-                server.start();
-            } catch (IOException ioe) {
-                ioe.printStackTrace(System.err);
-                System.exit(3);
-            }
-        });
+        Optional<GRPCServer> grpcServer = serverInjector.getInstance(GRPCServerProvider.class).get();
+
+        grpcServer.ifPresent(BootstrapUtil::startGRPCServer);
 
         serverInjector.getInstance(JettyServerProvider.class).get().ifPresent(server -> {
             try {
@@ -109,7 +107,6 @@ public class Main {
                 System.exit(3);
             }
         });
-
     }
 
     private static void reindexMySQL(Injector serverInjector) {

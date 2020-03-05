@@ -4,8 +4,8 @@ Forked from [Netflix Conductor](https://github.com/Netflix/conductor)
 
 ## Fork status
 
-- Most recent Netflix release is v2.25.1 (Feb 18, 2020)
-- Our branch is tracking release v2.12.5 (Jun 6, 2019 - we are behind)
+- Most recent Netflix release is v2.25.5 (Feb 15, 2020)
+- Our branch is tracking release v2.12.5 (Jun 6, 2019) - We are behind
 
 Here is a rundown of the most important of our additions and changes:
 - Rolls over task_log indices yearly rather than weekly 
@@ -39,4 +39,5 @@ Here is a rundown of the most important of our additions and changes:
   
 - Support basic authentication over ES6 REST client
 
-  We need this in order to be able to bo basic auth to Elasticsearch.
+  We do this in order to be able to bo basic auth to Elasticsearch,
+  which is easier than other alternatives.

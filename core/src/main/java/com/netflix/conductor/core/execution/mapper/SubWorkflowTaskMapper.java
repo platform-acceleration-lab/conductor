@@ -80,6 +80,7 @@ public class SubWorkflowTaskMapper implements TaskMapper {
         subWorkflowTask.setTaskId(taskId);
         subWorkflowTask.setStatus(Task.Status.SCHEDULED);
         subWorkflowTask.setWorkflowTask(taskToSchedule);
+        subWorkflowTask.setWorkflowPriority(workflowInstance.getPriority());
         logger.debug("SubWorkflowTask {} created to be Scheduled", subWorkflowTask);
         return Collections.singletonList(subWorkflowTask);
     }
@@ -115,7 +116,7 @@ public class SubWorkflowTaskMapper implements TaskMapper {
                 .map(Object::toString)
                 .map(Integer::parseInt)
                 .orElseGet(
-                        () -> metadataDAO.getLatest(subWorkflowName)
+                        () -> metadataDAO.getLatestWorkflowDef(subWorkflowName)
                                 .map(WorkflowDef::getVersion)
                                 .orElseThrow(() -> {
                                     String reason = String.format("The Task %s defined as a sub-workflow has no workflow definition available ", subWorkflowName);

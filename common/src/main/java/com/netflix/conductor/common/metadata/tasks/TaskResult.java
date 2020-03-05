@@ -20,12 +20,12 @@ import com.github.vmg.protogen.annotations.ProtoEnum;
 import com.github.vmg.protogen.annotations.ProtoField;
 import com.github.vmg.protogen.annotations.ProtoMessage;
 import com.google.protobuf.Any;
-
-import javax.validation.constraints.NotEmpty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Viren
@@ -69,6 +69,8 @@ public class TaskResult {
 
     private String externalOutputPayloadStoragePath;
 
+    private String subWorkflowId;
+
     public TaskResult(Task task) {
         this.workflowInstanceId = task.getWorkflowInstanceId();
         this.taskId = task.getTaskId();
@@ -77,6 +79,7 @@ public class TaskResult {
         this.workerId = task.getWorkerId();
         this.outputData = task.getOutputData();
         this.externalOutputPayloadStoragePath = task.getExternalOutputPayloadStoragePath();
+        this.subWorkflowId = task.getSubWorkflowId();
         switch (task.getStatus()) {
             case CANCELED:
             case COMPLETED_WITH_ERRORS:
@@ -85,7 +88,6 @@ public class TaskResult {
                 this.status = Status.FAILED;
                 break;
             case SCHEDULED:
-            case READY_FOR_RERUN:
                 this.status = Status.IN_PROGRESS;
                 break;
             default:
@@ -122,7 +124,7 @@ public class TaskResult {
     }
 
     public void setReasonForIncompletion(String reasonForIncompletion) {
-        this.reasonForIncompletion = reasonForIncompletion;
+        this.reasonForIncompletion = StringUtils.substring(reasonForIncompletion, 0, 500);
     }
 
     public long getCallbackAfterSeconds() {
@@ -239,6 +241,14 @@ public class TaskResult {
      */
     public void setExternalOutputPayloadStoragePath(String externalOutputPayloadStoragePath) {
         this.externalOutputPayloadStoragePath = externalOutputPayloadStoragePath;
+    }
+
+    public String getSubWorkflowId() {
+        return subWorkflowId;
+    }
+
+    public void setSubWorkflowId(String subWorkflowId) {
+        this.subWorkflowId = subWorkflowId;
     }
 
     @Override

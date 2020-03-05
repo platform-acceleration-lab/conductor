@@ -38,6 +38,11 @@ public class TestConfiguration implements CassandraConfiguration {
     }
 
     @Override
+    public boolean isEventMessageIndexingEnabled() {
+        return true;
+    }
+
+    @Override
     public String getServerId() {
         return "server_id";
     }
@@ -74,7 +79,7 @@ public class TestConfiguration implements CassandraConfiguration {
 
     @Override
     public int getIntProperty(String name, int defaultValue) {
-        return 0;
+        return 10;
     }
 
     @Override

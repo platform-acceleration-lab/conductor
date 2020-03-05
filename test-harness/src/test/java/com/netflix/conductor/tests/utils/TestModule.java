@@ -21,19 +21,25 @@ import com.netflix.conductor.core.config.Configuration;
 import com.netflix.conductor.core.config.CoreModule;
 import com.netflix.conductor.core.execution.WorkflowStatusListener;
 import com.netflix.conductor.core.execution.WorkflowStatusListenerStub;
+import com.netflix.conductor.core.utils.NoopLockModule;
+import com.netflix.conductor.dao.EventHandlerDAO;
 import com.netflix.conductor.dao.ExecutionDAO;
 import com.netflix.conductor.dao.IndexDAO;
 import com.netflix.conductor.dao.MetadataDAO;
+import com.netflix.conductor.dao.PollDataDAO;
 import com.netflix.conductor.dao.QueueDAO;
+import com.netflix.conductor.dao.RateLimitingDAO;
+import com.netflix.conductor.dao.dynomite.RedisEventHandlerDAO;
 import com.netflix.conductor.dao.dynomite.RedisExecutionDAO;
 import com.netflix.conductor.dao.dynomite.RedisMetadataDAO;
+import com.netflix.conductor.dao.dynomite.RedisPollDataDAO;
+import com.netflix.conductor.dao.dynomite.RedisRateLimitingDAO;
 import com.netflix.conductor.dao.dynomite.queue.DynoQueueDAO;
 import com.netflix.conductor.dyno.RedisQueuesProvider;
 import com.netflix.conductor.server.LocalRedisModule;
 import com.netflix.conductor.service.MetadataService;
 import com.netflix.conductor.service.MetadataServiceImpl;
 import com.netflix.dyno.queues.redis.RedisQueues;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,6 +67,9 @@ public class TestModule extends AbstractModule {
 
         bind(MetadataDAO.class).to(RedisMetadataDAO.class);
         bind(ExecutionDAO.class).to(RedisExecutionDAO.class);
+        bind(RateLimitingDAO.class).to(RedisRateLimitingDAO.class);
+        bind(EventHandlerDAO.class).to(RedisEventHandlerDAO.class);
+        bind(PollDataDAO.class).to(RedisPollDataDAO.class);
         bind(QueueDAO.class).to(DynoQueueDAO.class);
         bind(IndexDAO.class).to(MockIndexDAO.class);
 
@@ -72,6 +81,7 @@ public class TestModule extends AbstractModule {
         bind(UserTask.class).asEagerSingleton();
         bind(ObjectMapper.class).toProvider(JsonMapperProvider.class);
         bind(ExternalPayloadStorage.class).to(MockExternalPayloadStorage.class);
+        install(new NoopLockModule());
     }
 
     @Provides
