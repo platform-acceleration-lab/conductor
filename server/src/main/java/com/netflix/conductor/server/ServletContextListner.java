@@ -24,6 +24,8 @@ import com.netflix.conductor.core.config.SystemPropertiesConfiguration;
 import com.netflix.conductor.dao.IndexDAO;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import java.util.Optional;
@@ -33,6 +35,9 @@ import java.util.Optional;
  *
  */
 public class ServletContextListner extends GuiceServletContextListener {
+
+    private static Logger logger = LoggerFactory.getLogger(GuiceServletContextListener.class);
+
     private Injector serverInjector;
 
     @Override
@@ -68,8 +73,7 @@ public class ServletContextListner extends GuiceServletContextListener {
             BootstrapUtil.loadLog4jConfig(log4jConfig);
 
         } catch (Exception e) {
-            System.err.println("Error loading properties " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error loading properties", e);
         }
     }
 }
