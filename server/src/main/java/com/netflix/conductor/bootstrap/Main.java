@@ -15,8 +15,6 @@ package com.netflix.conductor.bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.netflix.conductor.dao.IndexDAO;
-import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
-import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServer;
 import com.netflix.conductor.grpc.server.GRPCServerProvider;
 import com.netflix.conductor.jetty.server.JettyServerProvider;
@@ -44,18 +42,12 @@ public class Main {
         ModulesProvider modulesProvider = bootstrapInjector.getInstance(ModulesProvider.class);
         Injector serverInjector = Guice.createInjector(modulesProvider.get());
 
-        Optional<EmbeddedElasticSearch> embeddedElasticSearch = serverInjector.getInstance(EmbeddedElasticSearchProvider.class).get();
-        embeddedElasticSearch.ifPresent(BootstrapUtil::startEmbeddedElasticsearchServer);
-
-        BootstrapUtil.setupIndex(serverInjector.getInstance(IndexDAO.class));
-
         try {
             serverInjector.getInstance(IndexDAO.class).setup();
         } catch (Exception e) {
             e.printStackTrace(System.err);
             System.exit(3);
         }
-
 
         System.out.println("\n\n\n");
         System.out.println("                     _            _             ");
@@ -78,5 +70,4 @@ public class Main {
             }
         });
     }
-
 }

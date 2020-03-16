@@ -15,15 +15,22 @@
  */
 package com.netflix.conductor.bootstrap;
 
+import com.google.inject.Injector;
 import com.netflix.conductor.dao.IndexDAO;
+import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
+import com.netflix.conductor.dao.mysql.MySQLIndexer;
 import com.netflix.conductor.elasticsearch.EmbeddedElasticSearch;
+import com.netflix.conductor.elasticsearch.EmbeddedElasticSearchProvider;
 import com.netflix.conductor.grpc.server.GRPCServer;
 import org.apache.log4j.PropertyConfigurator;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BootstrapUtil {
     public static void startEmbeddedElasticsearchServer(EmbeddedElasticSearch embeddedElasticsearchInstance) {
@@ -78,4 +85,45 @@ public class BootstrapUtil {
         }
     }
 
+    public static void maybeReindexMySQL(Injector serverInjector) {
+
+        Optional<EmbeddedElasticSearch> embeddedSearchInstance =
+                serverInjector.getInstance(EmbeddedElasticSearchProvider.class).get();
+        if (!embeddedSearchInstance.isPresent()) {
+            return;
+        }
+
+        MySQLIndexer mySqlIndexer = null;
+        try {
+            mySqlIndexer = serverInjector.getInstance(MySQLIndexer.class);
+        } catch (com.google.inject.ConfigurationException e) {
+            System.out.println("Unable to get MySQLIndexer for possible reindex into embedded Elasticsearch");
+        }
+        if (mySqlIndexer != null) {
+            ExecutorService mySqlExecutorService = Executors.newSingleThreadExecutor();
+            mySqlExecutorService.submit(mySqlIndexer::reindex);
+            System.out.println("Reindexing MySQL into embedded Elasticsearch");
+        }
+    }
+
+    public static void maybeReindexRedis(Injector serverInjector) {
+
+        Optional<EmbeddedElasticSearch> embeddedSearchInstance =
+                serverInjector.getInstance(EmbeddedElasticSearchProvider.class).get();
+        if (!embeddedSearchInstance.isPresent()) {
+            return;
+        }
+
+        RedisExecutionIndexer redisIndexer = null;
+        try {
+            redisIndexer = serverInjector.getInstance(RedisExecutionIndexer.class);
+        } catch (com.google.inject.ConfigurationException e) {
+            System.out.println("Unable to get RedisExecutionIndexer for possible reindex into embedded Elasticsearch");
+        }
+        if (redisIndexer != null) {
+            ExecutorService redisExecutorService = Executors.newSingleThreadExecutor();
+            redisExecutorService.submit(redisIndexer::indexRedis);
+            System.out.println("Reindexing Redis into embedded Elasticsearch");
+        }
+    }
 }

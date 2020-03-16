@@ -55,6 +55,9 @@ public class ServletContextListner extends GuiceServletContextListener {
         embeddedElasticSearch.ifPresent(BootstrapUtil::startEmbeddedElasticsearchServer);
 
         BootstrapUtil.setupIndex(serverInjector.getInstance(IndexDAO.class));
+
+        BootstrapUtil.maybeReindexMySQL(serverInjector);
+        BootstrapUtil.maybeReindexRedis(serverInjector);
     }
 
     private void loadProperties() {

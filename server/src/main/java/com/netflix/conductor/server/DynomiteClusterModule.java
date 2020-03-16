@@ -14,15 +14,18 @@ package com.netflix.conductor.server;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+import com.netflix.conductor.dao.dynomite.RedisExecutionIndexer;
 import com.netflix.conductor.dyno.DynoShardSupplierProvider;
 import com.netflix.conductor.dyno.DynomiteConfiguration;
 import com.netflix.conductor.dyno.RedisQueuesProvider;
 import com.netflix.conductor.dyno.SystemPropertiesDynomiteConfiguration;
 import com.netflix.conductor.jedis.ConfigurationHostSupplierProvider;
+import com.netflix.conductor.jedis.DynoJedisClientProvider;
 import com.netflix.conductor.jedis.DynomiteJedisProvider;
 import com.netflix.conductor.jedis.TokenMapSupplierProvider;
 import com.netflix.dyno.connectionpool.HostSupplier;
 import com.netflix.dyno.connectionpool.TokenMapSupplier;
+import com.netflix.dyno.jedis.DynoJedisClient;
 import com.netflix.dyno.queues.ShardSupplier;
 import redis.clients.jedis.commands.JedisCommands;
 
@@ -40,5 +43,9 @@ public class DynomiteClusterModule extends AbstractModule {
         bind(HostSupplier.class).toProvider(ConfigurationHostSupplierProvider.class);
         bind(TokenMapSupplier.class).toProvider(TokenMapSupplierProvider.class);
         bind(ShardSupplier.class).toProvider(DynoShardSupplierProvider.class);
+
+        // needed for redis to es indexer
+        bind(DynoJedisClient.class).toProvider(DynoJedisClientProvider.class).asEagerSingleton();
+        bind(RedisExecutionIndexer.class).asEagerSingleton();
     }
 }
